@@ -1,0 +1,204 @@
+{
+  "Canids": {
+    "top_k": 3,
+    "weight_power": 0.5,
+    "cv_accuracy": 0.9659420289855074,
+    "model_scores": {
+      "XGBoost": 0.9576086956521739,
+      "LightGBM": 0.9655797101449275,
+      "CatBoost": 0.9572463768115942,
+      "RandomForest": 0.8630434782608696,
+      "ExtraTrees": 0.8630434782608696,
+      "GradientBoosting": 0.9318840579710145,
+      "LogisticRegression": 0.8543478260869565,
+      "LDA": 0.8807971014492754,
+      "SVM_RBF": 0.8286231884057971,
+      "MLP": 0.7605072463768116,
+      "KNN": 0.7942028985507247
+    },
+    "top_models": [
+      "LightGBM",
+      "XGBoost",
+      "CatBoost"
+    ],
+    "weights": [
+      0.3342760677688831,
+      0.33289345731414827,
+      0.33283047491696854
+    ]
+  },
+  "Hominids": {
+    "top_k": 3,
+    "weight_power": 0.5,
+    "cv_accuracy": 0.9333333333333333,
+    "model_scores": {
+      "XGBoost": 0.8933333333333333,
+      "LightGBM": 0.8666666666666666,
+      "CatBoost": 0.8933333333333333,
+      "RandomForest": 0.9066666666666666,
+      "ExtraTrees": 0.9066666666666666,
+      "GradientBoosting": 0.8533333333333335,
+      "LogisticRegression": 0.8800000000000001,
+      "LDA": 0.76,
+      "SVM_RBF": 0.8800000000000001,
+      "MLP": 0.8533333333333333,
+      "KNN": 0.8266666666666668
+    },
+    "top_models": [
+      "RandomForest",
+      "ExtraTrees",
+      "XGBoost"
+    ],
+    "weights": [
+      0.33415537501100084,
+      0.33415537501100084,
+      0.33168924997799826
+    ]
+  },
+  "Papionins": {
+    "top_k": 3,
+    "weight_power": 0.5,
+    "cv_accuracy": 1.0,
+    "model_scores": {
+      "XGBoost": 0.9029239766081872,
+      "LightGBM": 0.9239766081871345,
+      "CatBoost": 0.9456140350877191,
+      "RandomForest": 0.9239766081871345,
+      "ExtraTrees": 0.9345029239766081,
+      "GradientBoosting": 0.8608187134502924,
+      "LogisticRegression": 1.0,
+      "LDA": 1.0,
+      "SVM_RBF": 0.9888888888888889,
+      "MLP": 0.8707602339181285,
+      "KNN": 0.9345029239766081
+    },
+    "top_models": [
+      "LogisticRegression",
+      "LDA",
+      "SVM_RBF"
+    ],
+    "weights": [
+      0.3339534932064288,
+      0.3339534932064288,
+      0.3320930135871424
+    ]
+  },
+  "Bears": {
+    "top_k": 3,
+    "weight_power": 0.5,
+    "cv_accuracy": 0.9800000000000001,
+    "model_scores": {
+      "XGBoost": 0.8955555555555555,
+      "LightGBM": 0.45999999999999996,
+      "CatBoost": 0.9133333333333333,
+      "RandomForest": 0.9133333333333333,
+      "ExtraTrees": 0.8933333333333333,
+      "GradientBoosting": 0.8133333333333332,
+      "LogisticRegression": 0.96,
+      "LDA": 0.9177777777777777,
+      "SVM_RBF": 0.9377777777777776,
+      "MLP": 0.8555555555555555,
+      "KNN": 0.8755555555555556
+    },
+    "top_models": [
+      "LogisticRegression",
+      "SVM_RBF",
+      "LDA"
+    ],
+    "weights": [
+      0.33714075893868967,
+      0.33321582006557593,
+      0.32964342099573446
+    ]
+  },
+  "Quolls": {
+    "top_k": 4,
+    "weight_power": 0.5,
+    "cv_accuracy": 0.8428571428571429,
+    "model_scores": {
+      "XGBoost": 0.7528571428571429,
+      "LightGBM": 0.7023809523809523,
+      "CatBoost": 0.7423809523809524,
+      "RandomForest": 0.6633333333333333,
+      "ExtraTrees": 0.7228571428571429,
+      "GradientBoosting": 0.6923809523809524,
+      "LogisticRegression": 0.8419047619047617,
+      "LDA": 0.8023809523809524,
+      "SVM_RBF": 0.7528571428571429,
+      "MLP": 0.6142857142857142,
+      "KNN": 0.6647619047619049
+    },
+    "top_models": [
+      "LogisticRegression",
+      "LDA",
+      "XGBoost",
+      "SVM_RBF"
+    ],
+    "weights": [
+      0.25856359289630143,
+      0.25242141456397316,
+      0.2445074962698627,
+      0.2445074962698627
+    ]
+  },
+  "Wolves": {
+    "top_k": 5,
+    "weight_power": 0.5,
+    "cv_accuracy": 0.5360294117647059,
+    "model_scores": {
+      "XGBoost": 0.5117647058823529,
+      "LightGBM": 0.5007352941176471,
+      "CatBoost": 0.5014705882352941,
+      "RandomForest": 0.45220588235294124,
+      "ExtraTrees": 0.5125,
+      "GradientBoosting": 0.2852941176470588,
+      "LogisticRegression": 0.5007352941176471,
+      "LDA": 0.4889705882352942,
+      "SVM_RBF": 0.4154411764705882,
+      "MLP": 0.40735294117647064,
+      "KNN": 0.41617647058823526
+    },
+    "top_models": [
+      "ExtraTrees",
+      "XGBoost",
+      "CatBoost",
+      "LightGBM",
+      "LogisticRegression"
+    ],
+    "weights": [
+      0.20139467182601356,
+      0.20125014746450395,
+      0.19921579771333658,
+      0.19906969149807296,
+      0.19906969149807296
+    ]
+  },
+  "Aariz": {
+    "top_k": 3,
+    "weight_power": 0.5,
+    "cv_accuracy": 0.45999999999999996,
+    "model_scores": {
+      "XGBoost": 0.449,
+      "LightGBM": 0.42699999999999994,
+      "CatBoost": 0.44699999999999995,
+      "RandomForest": 0.438,
+      "ExtraTrees": 0.429,
+      "GradientBoosting": 0.383,
+      "LogisticRegression": 0.362,
+      "LDA": 0.23399999999999999,
+      "SVM_RBF": 0.39899999999999997,
+      "MLP": 0.40800000000000003,
+      "KNN": 0.382
+    },
+    "top_models": [
+      "XGBoost",
+      "CatBoost",
+      "RandomForest"
+    ],
+    "weights": [
+      0.3349584465546206,
+      0.33421160405000533,
+      0.33082994939537413
+    ]
+  }
+}

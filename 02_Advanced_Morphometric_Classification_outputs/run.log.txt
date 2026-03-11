@@ -1,28 +1,178 @@
 [LOG] Writing live log to: /Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/02_Advanced_Morphometric_Classification_outputs/run.log.txt
-Traceback (most recent call last):
-  File "/Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/Materials/02_Advanced_Morphometric_Classification.py", line 117, in <module>
-    import xgboost as xgb
-  File "/Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/.venv/lib/python3.14/site-packages/xgboost/__init__.py", line 6, in <module>
-    from . import tracker  # noqa
-    ^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/.venv/lib/python3.14/site-packages/xgboost/tracker.py", line 9, in <module>
-    from .core import _LIB, _check_call, _deprecate_positional_args, make_jcargs
-  File "/Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/.venv/lib/python3.14/site-packages/xgboost/core.py", line 309, in <module>
-    _LIB = _load_lib()
-  File "/Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/.venv/lib/python3.14/site-packages/xgboost/core.py", line 273, in _load_lib
-            raise XGBoostError(f"""
-    ...<11 lines>...
-    """)
-xgboost.core.XGBoostError: 
-XGBoost Library (libxgboost.dylib) could not be loaded.
-Likely causes:
-  * OpenMP runtime is not installed
-    - vcomp140.dll or libgomp-1.dll for Windows
-    - libomp.dylib for Mac OSX
-    - libgomp.so for Linux and other UNIX-like OSes
-    Mac OSX users: Run `brew install libomp` to install OpenMP runtime.
+[OK] XGBoost available
+[OK] LightGBM available
+[OK] CatBoost available
+======================================================================
+  02_ADVANCED MORPHOMETRIC CLASSIFICATION
+  State-of-the-Art Ensemble Methods
+======================================================================
 
-  * You are running 32-bit Python on a 64-bit OS
+  Output directory: /Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/02_Advanced_Morphometric_Classification_outputs
 
-Error message(s): ["dlopen(/Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/.venv/lib/python3.14/site-packages/xgboost/lib/libxgboost.dylib, 0x0006): Library not loaded: @rpath/libomp.dylib\n  Referenced from: <1A0D8152-BF46-3BE0-B651-EE965C187777> /Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/.venv/lib/python3.14/site-packages/xgboost/lib/libxgboost.dylib\n  Reason: tried: '/opt/homebrew/opt/libomp/lib/libomp.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/opt/homebrew/opt/libomp/lib/libomp.dylib' (no such file), '/opt/homebrew/opt/libomp/lib/libomp.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/opt/homebrew/opt/libomp/lib/libomp.dylib' (no such file), '/Users/otodreas/.pyenv/versions/3.14.2/lib/libomp.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/Users/otodreas/.pyenv/versions/3.14.2/lib/libomp.dylib' (no such file), '/opt/homebrew/lib/libomp.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/opt/homebrew/lib/libomp.dylib' (no such file), '/Users/otodreas/.pyenv/versions/3.14.2/lib/libomp.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/Users/otodreas/.pyenv/versions/3.14.2/lib/libomp.dylib' (no such file), '/opt/homebrew/lib/libomp.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/opt/homebrew/lib/libomp.dylib' (no such file)"]
+  Processing 1 datasets one at a time...
+  Results will be saved incrementally to reduce memory usage.
 
+
+======================================================================
+  Processing dataset 1/1: Papionins
+======================================================================
+
+======================================================================
+  PAPIONINS - ADVANCED ANALYSIS
+======================================================================
+
+  Loaded: 95 specimens, 31 landmarks
+
+  [FILTERING] Removing 1 rare species (< 3 samples):
+    - L. aterrimus: 2 samples (OUTLIER - will be excluded)
+  After filtering: 93 specimens remaining
+
+  Species distribution (5 classes):
+    L. albigena: 27
+    Macaca: 22
+    Mandrillus: 20
+    Cercocebus: 15
+    Papio: 9
+
+  Feature Engineering (NO PCA - comprehensive shape features only):
+  Computing features (NO PCA - comprehensive shape features only)...
+    Raw coordinates: 93
+    Pairwise distances: 465
+    Centroid features: 38
+    Angle features: 200
+    Shape descriptors: 21
+    Distance ratios: 20
+    TOTAL FEATURES: 837 (NO PCA - pure shape features)
+
+  [TUNING] Weighted Voting (CV on full dataset):
+    Best params: top_k=3, weight_power=0.5, cv_accuracy=1.0000
+
+  [1] INDIVIDUAL MODELS (5-fold stratified CV on full dataset):
+  --------------------------------------------------
+    XGBoost             : 0.9032 (0.3s)
+    LightGBM            : 0.9247 (1.5s)
+    CatBoost            : 0.9462 (11.6s)
+    RandomForest        : 0.9247 (0.2s)
+    ExtraTrees          : 0.9355 (0.2s)
+    GradientBoosting    : 0.8602 (3.5s)
+    LogisticRegression  : 1.0000 (0.0s)
+    LDA                 : 1.0000 (0.0s)
+    SVM_RBF             : 0.9892 (0.0s)
+    MLP                 : 0.8710 (0.1s)
+    KNN                 : 0.9355 (0.0s)
+
+  [2] STACKING ENSEMBLE (5-fold CV):
+  --------------------------------------------------
+    Stacking: 0.9355 (20.6s)
+
+  [3] WEIGHTED VOTING ENSEMBLE (5-fold CV):
+  --------------------------------------------------
+    Weighted Voting: 1.0000 (0.1s)
+    Model weights: {'LogisticRegression': np.float64(0.3339534932064288), 'LDA': np.float64(0.3339534932064288), 'SVM_RBF': np.float64(0.3320930135871424)}
+
+  [4] BLENDING ENSEMBLE (5-fold CV):
+  --------------------------------------------------
+    Blending: 0.9355 (24.9s)
+
+  Evaluation: 5-fold stratified CV on full dataset (all specimens)
+  (Like Mohseni et al. Table 1 - every specimen predicted exactly once)
+
+
+  ==================================================
+  RESULTS SUMMARY - Papionins (5-fold CV)
+  ==================================================
+
+  Model                     Accuracy  
+  -----------------------------------
+  LogisticRegression        1.0000
+  LDA                       1.0000
+  Weighted Voting           1.0000
+  SVM_RBF                   0.9892
+  CatBoost                  0.9462
+  ExtraTrees                0.9355
+  KNN                       0.9355
+  Stacking Ensemble         0.9355
+  Blending                  0.9355
+  LightGBM                  0.9247
+  RandomForest              0.9247
+  XGBoost                   0.9032
+  MLP                       0.8710
+  GradientBoosting          0.8602
+
+  *** BEST: LogisticRegression = 1.0000 (100.00%) ***
+
+  [OK] Incremental save: Results for Papionins saved to Excel
+  Memory cleared after processing Papionins
+
+======================================================================
+  FINAL COMPARISON - ALL DATASETS
+======================================================================
+
+  Dataset      Spec   LM   Feat   Cls  Best Model             Accuracy   Accuracy %  
+  -------------------------------------------------------------------------------------
+  Papionins    93     31   837    5    LogisticRegression     1.0000     100.00%
+  -------------------------------------------------------------------------------------
+  AVERAGE                                                     1.0000     100.00%
+=====================================================================================
+
+======================================================================
+  BEST MODEL ACROSS ALL DATASETS
+======================================================================
+
+  Models tested on all 1 datasets:
+
+  Model                     Avg Accuracy    Accuracy %   Per-Dataset Scores
+  ----------------------------------------------------------------------------------------------------
+  LogisticRegression        1.0000              100.00%    Papionins: 1.000
+  LDA                       1.0000              100.00%    Papionins: 1.000
+  Weighted Voting           1.0000              100.00%    Papionins: 1.000
+  SVM_RBF                   0.9892               98.92%    Papionins: 0.989
+  CatBoost                  0.9462               94.62%    Papionins: 0.946
+  ExtraTrees                0.9355               93.55%    Papionins: 0.935
+  KNN                       0.9355               93.55%    Papionins: 0.935
+  Stacking Ensemble         0.9355               93.55%    Papionins: 0.935
+  Blending                  0.9355               93.55%    Papionins: 0.935
+  LightGBM                  0.9247               92.47%    Papionins: 0.925
+  RandomForest              0.9247               92.47%    Papionins: 0.925
+  XGBoost                   0.9032               90.32%    Papionins: 0.903
+  MLP                       0.8710               87.10%    Papionins: 0.871
+  GradientBoosting          0.8602               86.02%    Papionins: 0.860
+
+  ======================================================================
+  *** BEST MODEL ACROSS ALL DATASETS: LogisticRegression ***
+  *** Average Accuracy: 1.0000 (100.00%) ***
+  ======================================================================
+
+  Per-Dataset Performance:
+    Papionins: 1.0000 (100.00%)
+
+======================================================================
+  GLOBAL TUNING - BEST OVERALL MODEL (LogisticRegression)
+======================================================================
+    [INFO] No global tuning implemented for this model.
+
+======================================================================
+  CONFUSION MATRICES - BEST OVERALL MODEL (LogisticRegression)
+======================================================================
+  Computing features (NO PCA - comprehensive shape features only)...
+    Raw coordinates: 93
+    Pairwise distances: 465
+    Centroid features: 38
+    Angle features: 200
+    Shape descriptors: 21
+    Distance ratios: 20
+    TOTAL FEATURES: 837 (NO PCA - pure shape features)
+    [OK] Confusion matrix saved: /Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/02_Advanced_Morphometric_Classification_outputs/Papionins_Confusion_Matrix_Best_Overall.png
+    [OK] Overall Accuracy: 100.00% (5-fold CV, 93 specimens)
+
+  [OK] Tuned weighted voting params saved to: /Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/02_Advanced_Morphometric_Classification_outputs/weighted_voting_tuned_params.json
+
+  [OK] Results saved to: /Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/02_Advanced_Morphometric_Classification_outputs/Advanced_Classification_Results.xlsx
+    - Sheet 1: All_Results (all models for all datasets)
+    - Sheet 2: Summary (dataset overview)
+    - Sheet 3: Best_Models (best model per dataset)
+    - Sheet 4: Best_Overall_Model (best model across all datasets)
+
+  All outputs saved to: /Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/02_Advanced_Morphometric_Classification_outputs/
+    - Excel file: Advanced_Classification_Results.xlsx
+    - Confusion matrices: *_Confusion_Matrix.png

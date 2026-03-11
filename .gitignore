@@ -1,4 +1,9 @@
 Materials/*
 !Materials/README.md
 !Materials/Materials.zip
+!Materials/scripts/02_Advanced_Morphometric_Classification.py
+!Materials/02_Advanced_Morphometric_Classification_outputs
+!Materials/run02.sh
+
+
 **nohup.out

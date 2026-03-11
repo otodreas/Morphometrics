@@ -1,0 +1,30 @@
+{
+  "Papionins": {
+    "top_k": 3,
+    "weight_power": 0.5,
+    "cv_accuracy": 1.0,
+    "model_scores": {
+      "XGBoost": 0.9023391812865496,
+      "LightGBM": 0.9239766081871345,
+      "CatBoost": 0.9456140350877191,
+      "RandomForest": 0.9239766081871345,
+      "ExtraTrees": 0.9345029239766081,
+      "GradientBoosting": 0.8608187134502924,
+      "LogisticRegression": 1.0,
+      "LDA": 1.0,
+      "SVM_RBF": 0.9888888888888889,
+      "MLP": 0.8707602339181285,
+      "KNN": 0.9345029239766081
+    },
+    "top_models": [
+      "LogisticRegression",
+      "LDA",
+      "SVM_RBF"
+    ],
+    "weights": [
+      0.3339534932064288,
+      0.3339534932064288,
+      0.3320930135871424
+    ]
+  }
+}
