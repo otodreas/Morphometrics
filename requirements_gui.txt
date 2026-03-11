@@ -1,0 +1,21 @@
+# PyQt6 GUI Requirements
+# Install with: pip install -r requirements_gui.txt
+
+# Core GUI Framework
+PyQt6>=6.4.0
+
+# # Original script dependencies
+# numpy>=1.21.0
+# pandas>=1.3.0
+# scikit-learn>=1.0.0
+# scipy>=1.7.0
+# matplotlib>=3.4.0
+# openpyxl>=3.6.0
+
+# # Optional ML libraries (script # will work without these but with # reduced functionality)
+# xgboost>=1.5.0
+# lightgbm>=3.3.0
+# catboost>=1.0.0
+
+# Optional but recommended
+optuna>=2.10.0
