@@ -2,7 +2,8 @@
 
 import streamlit as st
 
-import src.validate as valid
+from src.test_heartbeat import hb
+from src.validate import is_morphologika
 
 
 def upload():
@@ -30,7 +31,7 @@ def upload():
                 # Read file and check validity
                 try:
                     content = file.read().decode("utf-8").splitlines()
-                    if not valid.is_morphologika(content):
+                    if not is_morphologika(content):
                         errors.append(f"{file.name} is not a valid Morphologika file.")
 
                 # Throw unicode decode error if decoding fails
@@ -66,10 +67,19 @@ def upload():
 
 def running():
     st.title("Classifying morphologika data...")
+
+    # Initialize cancel flag if not already set
+    if "cancel_requested" not in st.session_state:
+        st.session_state.cancel_requested = False
+
     cancel = st.button("Cancel")
     if cancel:
+        st.session_state.cancel_requested = True
         st.session_state.screen = "upload"
         st.rerun()
+
+    if not st.session_state.cancel_requested:
+        hb(st.session_state)
 
 
 def dashboard():
