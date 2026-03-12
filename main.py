@@ -1,36 +1,96 @@
 #!/usr/bin/env python
 
-import random
-import sys
+import streamlit as st
 
-from PySide6 import QtCore, QtGui, QtWidgets
+def show_upload_screen():
+    st.title("Advanced Morphometric Classification")
 
+    # File importer
+    staged_files = st.file_uploader(
+        "Import morphologika data", type="txt", accept_multiple_files=True
+    )
 
-class MyWidget(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
+    # Upload button
+    upload = st.button("Upload morphologika files")
 
-        self.hello = ["Hallo Welt", "Hei maailma", "Hola Mundo", "Привет мир"]
+    # Handle upload button click
+    if upload:
+        # Check if any files were uploaded
+        if len(staged_files) == 0:
+            st.error("No morphologika files uploaded")
 
-        self.button = QtWidgets.QPushButton("Click me!")
-        self.text = QtWidgets.QLabel("Hello World", alignment=QtCore.Qt.AlignCenter)
+        else:
+            contents = []
+            st.session_state.files = staged_files
+            for file in st.session_state.files:
+                contents.append(file.read())
+                
+            st.session_state.contents = contents
+            print(st.session_state.contents)
+            
 
-        self.layout = QtWidgets.QVBoxLayout(self)
-        self.layout.addWidget(self.text)
-        self.layout.addWidget(self.button)
+def show_running_screen():
+    st.title("Classifying morphologika data...")
+    cancel = st.button("Cancel")
+    if cancel:
+        st.session_state.screen = "upload"
+        st.rerun()
 
-        self.button.clicked.connect(self.magic)
-
-    @QtCore.Slot()
-    def magic(self):
-        self.text.setText(random.choice(self.hello))
-
+def main():
+    if "screen" not in st.session_state:
+        st.session_state.screen = "upload"
+    if st.session_state.screen == "upload":
+        show_upload_screen()
+    elif st.session_state.screen == "running":
+        show_running_screen()
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication([])
+    main()
 
-    widget = MyWidget()
-    widget.resize(800, 600)
-    widget.show()
+# def show_upload_screen():
+#     st.session_state.screen = "upload"
 
-    sys.exit(app.exec())
+#     st.title("Advanced Morphometric Classification")
+#     st.markdown("*State-of-the-art techniques inspired by Kaggle-winning approach*")
+
+#     staged_files = st.file_uploader("Import morphologika data", accept_multiple_files=True)
+
+#     upload = st.button("Upload morphologika files")
+
+#     if upload:
+#         if len(staged_files) > 0:
+#             st.success("Morphologika files uploaded")
+#             run = st.button("Classify morphologika data")
+#             if run:
+#                 st.session_state.screen = "running"
+#                 st.rerun()
+#         else:
+#             st.error("No morphologika files uploaded")
+
+#     st.markdown("*Classification algorithm: Sara Behnamian, Web app: Oliver Todreas*")
+
+# def show_running_screen():
+#     st.header("Classifying morphologika data...")
+#     cancel = st.button("Cancel")
+#     if cancel:
+#         st.session_state.screen = "upload"
+#         st.rerun()
+
+# def show_dashboard_screen():
+#     pass
+
+
+# def main():
+#     if "screen" not in st.session_state:
+#         st.session_state.screen = "upload"
+
+#     if st.session_state.screen == "upload":
+#         show_dashboard_screen()
+#     elif st.session_state.screen == "running":
+#         show_running_screen()
+#     elif st.session_state.screen == "dashboard":
+#         show_dashboard_screen()
+
+
+# if __name__ == "__main__":
+#     main()
