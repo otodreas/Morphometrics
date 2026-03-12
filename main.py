@@ -2,6 +2,7 @@
 
 import streamlit as st
 
+
 def is_morphologika(file: list[str]) -> bool:
     # Instantiate dictionary with required headers as keys and False as values
     required_headers = {
@@ -9,9 +10,9 @@ def is_morphologika(file: list[str]) -> bool:
         "[landmarks]": False,
         "[dimensions]": False,
         "[names]": False,
-        "[rawpoints]": False
+        "[rawpoints]": False,
     }
-    
+
     # Loop through lines
     for line in file:
         if line.strip() in required_headers.keys():
@@ -24,6 +25,7 @@ def is_morphologika(file: list[str]) -> bool:
 
     # If not all required headers were found, return False
     return False
+
 
 def show_upload_screen():
     st.title("Advanced Morphometric Classification")
@@ -47,7 +49,7 @@ def show_upload_screen():
             for file in uploaded_files:
                 # Read file
                 content = file.read().decode("utf-8").splitlines()
-                
+
                 # Check if file is a valid morphologika file
                 if not is_morphologika(content):
                     st.error(f"{file.name} is not a valid utf-8 morphologika file")
@@ -57,7 +59,7 @@ def show_upload_screen():
             st.session_state.files = uploaded_files
             st.session_state.screen = "running"
             st.rerun()
-            
+
 
 def show_running_screen():
     st.title("Classifying morphologika data...")
@@ -66,6 +68,7 @@ def show_running_screen():
         st.session_state.screen = "upload"
         st.rerun()
 
+
 def main():
     if "screen" not in st.session_state:
         st.session_state.screen = "upload"
@@ -73,6 +76,7 @@ def main():
         show_upload_screen()
     elif st.session_state.screen == "running":
         show_running_screen()
+
 
 if __name__ == "__main__":
     main()
