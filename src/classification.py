@@ -172,7 +172,7 @@ except ImportError:
 # SETTINGS
 # =============================================================================
 RANDOM_STATE = 42
-TEST_SIZE = 0.25
+TEST_SIZE = 0.25  # TODO: check if this even gets used anywhere
 MIN_SAMPLES = 3  # Minimum total samples per class
 N_SPLITS = 5  # CV folds (was 10)
 TUNE_WEIGHTED_VOTING = True
@@ -183,7 +183,7 @@ CV_FOLDS_GRID = [5, 7, 10]
 BLEND_HOLDOUT_GRID = [0.2, 0.3, 0.4]
 BLEND_META_C_GRID = [0.1, 1.0, 10.0]
 
-np.random.seed(RANDOM_STATE)
+# np.random.seed(RANDOM_STATE)
 
 # =============================================================================
 # DATA LOADING
@@ -300,10 +300,10 @@ def get_species(names, dataset_type):
     return np.array(species)
 
 
-def filter_rare(labels, landmarks):
-    """Remove classes with fewer than MIN_SAMPLES samples."""
+def filter_rare(labels, landmarks, min_samples: int):
+    """Remove classes with fewer than the minimum number of samples."""
     counts = Counter(labels)
-    rare = [lab for lab, c in counts.items() if c < MIN_SAMPLES]
+    rare = [lab for lab, c in counts.items() if c < min_samples]
     if not rare:
         return labels, landmarks, []
     mask = ~np.isin(labels, rare)
@@ -891,7 +891,7 @@ def tune_weighted_voting_params(X, y, n_classes):
     return best
 
 
-def tune_global_weighted_voting(datasets):
+def tune_global_weighted_voting(datasets, min_samples: int):
     """Tune one global weighted voting config across all datasets."""
     dataset_cache = []
     for name, path, dtype in datasets:
@@ -901,7 +901,7 @@ def tune_global_weighted_voting(datasets):
         labels = get_species(specimen_names, dtype)
         if dtype == "canids":
             labels = classify_canids_by_type(landmarks, specimen_names)
-        labels, landmarks, _ = filter_rare(labels, landmarks)
+        labels, landmarks, _ = filter_rare(labels, landmarks, min_samples)
         if len(np.unique(labels)) < 2:
             continue
         X = engineer_all_features(landmarks)
@@ -973,7 +973,7 @@ def tune_global_weighted_voting(datasets):
     return best
 
 
-def tune_global_blending(datasets):
+def tune_global_blending(datasets, min_samples: int):
     """Tune blending params across all datasets."""
     dataset_cache = []
     for name, path, dtype in datasets:
@@ -983,7 +983,7 @@ def tune_global_blending(datasets):
         labels = get_species(specimen_names, dtype)
         if dtype == "canids":
             labels = classify_canids_by_type(landmarks, specimen_names)
-        labels, landmarks, _ = filter_rare(labels, landmarks)
+        labels, landmarks, _ = filter_rare(labels, landmarks, min_samples)
         if len(np.unique(labels)) < 2:
             continue
         X = engineer_all_features(landmarks)
@@ -1046,7 +1046,13 @@ def tune_global_blending(datasets):
 
 
 def build_confusion_matrix_for_model(
-    dataset_name, filepath, dataset_type, model_name, output_dir, best_model_params=None
+    dataset_name,
+    filepath,
+    dataset_type,
+    model_name,
+    output_dir,
+    min_samples: int,
+    best_model_params=None,
 ):
     """Build confusion matrix using stratified K-fold CV on full dataset.
     Every specimen gets predicted exactly once (like Mohseni et al. Table 1)."""
@@ -1058,7 +1064,7 @@ def build_confusion_matrix_for_model(
     labels = get_species(specimen_names, dataset_type)
     if dataset_type == "canids":
         labels = classify_canids_by_type(landmarks, specimen_names)
-    labels, landmarks, _ = filter_rare(labels, landmarks)
+    labels, landmarks, _ = filter_rare(labels, landmarks, min_samples)
     if len(np.unique(labels)) < 2:
         print(f"  [SKIP] {dataset_name}: <2 classes after filtering")
         return None
@@ -1386,7 +1392,7 @@ def classify_canids_by_type(landmarks, specimen_names):
     return np.array(classifications)
 
 
-def analyze_dataset(name, filepath, dataset_type, output_dir):
+def analyze_dataset(name, filepath, dataset_type, min_samples: int, output_dir):
     """Full advanced analysis of one dataset"""
     print(f"\n{'=' * 70}")
     print(f"  {name.upper()} - ADVANCED ANALYSIS")
@@ -1417,10 +1423,10 @@ def analyze_dataset(name, filepath, dataset_type, output_dir):
 
     # Filter rare species (including "Unknown" and others with < 3 samples)
     counts = Counter(species)
-    rare = [sp for sp, c in counts.items() if c < MIN_SAMPLES]
+    rare = [sp for sp, c in counts.items() if c < min_samples]
     if rare:
         print(
-            f"\n  [FILTERING] Removing {len(rare)} rare species (< {MIN_SAMPLES} samples):"
+            f"\n  [FILTERING] Removing {len(rare)} rare species (< {min_samples} samples):"
         )
         for sp in rare:
             print(f"    - {sp}: {counts[sp]} samples (OUTLIER - will be excluded)")
@@ -1589,7 +1595,13 @@ def analyze_dataset(name, filepath, dataset_type, output_dir):
 # =============================================================================
 
 
-def main():  # TODO: filenames and parameters are arguments
+def main(
+    files: list, test_size: float, min_samples: int, n_splits: int, seed: int
+) -> list:
+    # Set seed
+    if seed:
+        np.random.seed(seed)
+
     print("=" * 70)
     print("  02_ADVANCED MORPHOMETRIC CLASSIFICATION")
     print("  State-of-the-Art Ensemble Methods")
@@ -1965,6 +1977,8 @@ def main():  # TODO: filenames and parameters are arguments
     print(f"\n  All outputs saved to: {OUTPUT_DIR}/")
     print(f"    - Excel file: Advanced_Classification_Results.xlsx")
     print(f"    - Confusion matrices: *_Confusion_Matrix.png")
+
+    return []  # TODO: fix placeholder return
 
 
 if __name__ == "__main__":

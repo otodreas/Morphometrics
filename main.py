@@ -91,12 +91,12 @@ def upload():
 def running():
     st.title("Classifying morphologika data...")
 
-    classification.run(
+    classification.main(
         st.session_state.files,
-        st.session_state.random_state,
         st.session_state.test_size,
         st.session_state.min_samples,
         st.session_state.n_splits,
+        st.session_state.random_state,
     )
 
     st.download_button(
