@@ -8,3 +8,6 @@ Interactive morphometrics interface
 - MacOS:
   - OpenMP
     - ```brew install libomp```
+
+## Notes
+`XGBoost` and `MLP` currently run slightly differently in the app than with the standalone script. It is likely a seeding issue, since it's consistent across app runs and standalone script runs.
