@@ -38,7 +38,7 @@ parse arguments
 
 """
 
-import argparse
+import argparse  # OT
 import json
 import os
 import sys
@@ -47,11 +47,13 @@ import warnings
 from collections import Counter
 from datetime import datetime
 from itertools import combinations
+from pathlib import Path  # OT
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from pyarrow import StructType
 from scipy.stats import kurtosis, skew
 from sklearn.discriminant_analysis import (
     LinearDiscriminantAnalysis,
@@ -104,7 +106,7 @@ warnings.filterwarnings("ignore")
 parser = argparse.ArgumentParser()
 
 parser.add_argument("--output_dir", type=str)
-parser.add_argument("--files", type=list)
+parser.add_argument("--files", nargs="+", type=str)  # list of Path objects
 parser.add_argument("--test_size", type=float)
 parser.add_argument("--min_samples", type=int)
 parser.add_argument("--n_splits", type=int)
@@ -113,12 +115,24 @@ parser.add_argument("--seed", type=int, default=None)
 args = parser.parse_args()
 
 # Paths: resolve data relative to project root (parent of scripts/)
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 
 # Output directory based on script name (under project root)
-SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, f"{SCRIPT_NAME}_outputs")
+# SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
+OUTPUT_DIR = args.output_dir
+datasets_filepaths = args.files
+datasets = []
+for f in datasets_filepaths:
+    datasets.append(
+        (
+            Path(f).stem,
+            f,
+            Path(f).stem,
+        )
+    )
+
+print(datasets)
 
 
 # -----------------------------------------------------------------------------
@@ -1620,59 +1634,59 @@ def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     print(f"\n  Output directory: {OUTPUT_DIR}")
 
-    datasets = [
-        ("Canids", "Canids/raw_data/canids_morphologika.txt", "canids"),
-        ("Hominids", "Hominids/raw_data/landmarks_paper_morphologika.txt", "hominids"),
-        (
-            "Papionins",
-            "Papionins/raw_data/cercocebus,macaca mandrilus, papio and lophocebus adults .txt",
-            "papionins",
-        ),
-        ("Bears", "Bears/raw_data/bears_morphologika.txt", "bears"),
-        ("Quolls", "Quolls/raw_data/quolls_morphologika.txt", "quolls"),
-        ("Wolves", "Wolf/raw_data/wolf_morphologika.txt", "wolves"),
-        ("Aariz", "Aariz/raw_data/aariz_morphologika.txt", "aariz"),
-    ]
+    # datasets = [
+    #     ("Canids", "Canids/raw_data/canids_morphologika.txt", "canids"),
+    #     ("Hominids", "Hominids/raw_data/landmarks_paper_morphologika.txt", "hominids"),
+    #     (
+    #         "Papionins",
+    #         "Papionins/raw_data/cercocebus,macaca mandrilus, papio and lophocebus adults .txt",
+    #         "papionins",
+    #     ),
+    #     ("Bears", "Bears/raw_data/bears_morphologika.txt", "bears"),
+    #     ("Quolls", "Quolls/raw_data/quolls_morphologika.txt", "quolls"),
+    #     ("Wolves", "Wolf/raw_data/wolf_morphologika.txt", "wolves"),
+    #     ("Aariz", "Aariz/raw_data/aariz_morphologika.txt", "aariz"),
+    # ]
 
-    # Resolve paths relative to project root so script works from any cwd
-    adjusted_datasets = []
-    for name, path, dtype in datasets:
-        path_resolved = os.path.join(PROJECT_ROOT, path)
-        if not os.path.exists(path_resolved):
-            alt_paths = [
-                path_resolved,
-                path,
-                os.path.join(
-                    PROJECT_ROOT,
-                    os.path.dirname(path).replace("raw_data", ""),
-                    os.path.basename(path),
-                ),
-                os.path.join(PROJECT_ROOT, "raw_data", os.path.basename(path)),
-            ]
-            if "wolf" in path.lower():
-                alt_paths.extend(
-                    [
-                        os.path.join(
-                            PROJECT_ROOT, "Wolves", "raw_data", os.path.basename(path)
-                        ),
-                        os.path.join(
-                            PROJECT_ROOT, "wolf", "raw_data", os.path.basename(path)
-                        ),
-                    ]
-                )
-            found = False
-            for alt_path in alt_paths:
-                if os.path.exists(alt_path):
-                    path_resolved = alt_path
-                    found = True
-                    break
-            if not found:
-                print(f"  WARNING: {name} file not found at: {path_resolved}")
-                print(f"    Skipping {name}...")
-                continue
-        adjusted_datasets.append((name, path_resolved, dtype))
+    # # Resolve paths relative to project root so script works from any cwd
+    # adjusted_datasets = []
+    # for name, path, dtype in datasets:
+    #     path_resolved = os.path.join(PROJECT_ROOT, path)
+    #     if not os.path.exists(path_resolved):
+    #         alt_paths = [
+    #             path_resolved,
+    #             path,
+    #             os.path.join(
+    #                 PROJECT_ROOT,
+    #                 os.path.dirname(path).replace("raw_data", ""),
+    #                 os.path.basename(path),
+    #             ),
+    #             os.path.join(PROJECT_ROOT, "raw_data", os.path.basename(path)),
+    #         ]
+    #         if "wolf" in path.lower():
+    #             alt_paths.extend(
+    #                 [
+    #                     os.path.join(
+    #                         PROJECT_ROOT, "Wolves", "raw_data", os.path.basename(path)
+    #                     ),
+    #                     os.path.join(
+    #                         PROJECT_ROOT, "wolf", "raw_data", os.path.basename(path)
+    #                     ),
+    #                 ]
+    #             )
+    #         found = False
+    #         for alt_path in alt_paths:
+    #             if os.path.exists(alt_path):
+    #                 path_resolved = alt_path
+    #                 found = True
+    #                 break
+    #         if not found:
+    #             print(f"  WARNING: {name} file not found at: {path_resolved}")
+    #             print(f"    Skipping {name}...")
+    #             continue
+    #     adjusted_datasets.append((name, path_resolved, dtype))
 
-    datasets = adjusted_datasets
+    # datasets = adjusted_datasets
 
     # Process datasets one at a time and save incrementally to reduce memory usage
     excel_path = os.path.join(OUTPUT_DIR, "Advanced_Classification_Results.xlsx")
