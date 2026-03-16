@@ -3,6 +3,7 @@
 import io
 import subprocess
 import tempfile
+import time
 import zipfile
 from pathlib import Path
 
@@ -11,85 +12,118 @@ import streamlit as st
 from src.validate import is_morphologika
 
 st.title("Advanced Morphometric Classification")
-tmp_dir = None
 
-# Settings buttons
-st.subheader("Model Parameters (leave as-is for defaults)")
-seed = st.number_input("Random seed", value=42, min_value=0)
-test_size = st.slider("Test Size", min_value=0.1, max_value=0.5, value=0.25, step=0.05)
-min_samples = st.number_input("Minimum total samples per class", value=3, min_value=1)
-n_splits = st.number_input("CV folds", value=5, min_value=2)
+# --- Poll for running classification (persists across reruns) ---
+if st.session_state.get("running"):
+    process = st.session_state["process"]
+    status = st.empty()
+    cancel = st.button("Cancel classification")
 
-# File importer
-st.subheader("Data importing")
-uploaded_files = st.file_uploader(
-    "Select Morphologika files", type="txt", accept_multiple_files=True
-)
+    if cancel:
+        process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+        st.session_state["running"] = False
+        st.session_state["tmp_dir"].cleanup()
+        status.warning("Classification cancelled.")
+        st.stop()
 
-# Classify button
-classify = st.button("Classify Morphologika files")
-
-# Handle classify button click
-if classify:
-    # Check if any files were uploaded
-    if len(uploaded_files) == 0:
-        st.error("No files uploaded.")
-
+    if process.poll() is None:  # still running
+        status.info("⏳ Classification running...")
+        time.sleep(0.5)
+        st.rerun()
     else:
-        file_names, errors = [], []
-        # Loop through uploaded files
-        for file in uploaded_files:
-            file_names.append(file.name)
-            # Read file and check validity
-            try:
-                content = file.read().decode("utf-8").splitlines()
-                if not is_morphologika(content):
-                    errors.append(f"{file.name} is not a valid Morphologika file.")
+        # Process finished
+        st.session_state["running"] = False
+        _, stderr = process.communicate()
+        tmp_dir = st.session_state["tmp_dir"]
+        output_dir = st.session_state["output_dir"]
+        try:
+            if process.returncode != 0:
+                st.error(stderr)
+            else:
+                status.success("Done!")
+                zip_buffer = io.BytesIO()
+                with zipfile.ZipFile(zip_buffer, "w") as zf:
+                    for output_file in output_dir.iterdir():
+                        zf.write(output_file, output_file.name)
+                st.download_button(
+                    label="Download results",
+                    data=zip_buffer.getvalue(),
+                    file_name="results.zip",
+                    mime="application/zip",
+                )
+        finally:
+            tmp_dir.cleanup()
 
-            # Throw unicode decode error if decoding fails
-            except UnicodeDecodeError:
+else:
+    # --- Settings ---
+    st.subheader("Model Parameters (leave as-is for defaults)")
+    seed = st.number_input("Random seed", value=42, min_value=0)
+    test_size = st.slider(
+        "Test Size", min_value=0.1, max_value=0.5, value=0.25, step=0.05
+    )
+    min_samples = st.number_input(
+        "Minimum total samples per class", value=3, min_value=1
+    )
+    n_splits = st.number_input("CV folds", value=5, min_value=2)
+
+    # --- File importer ---
+    st.subheader("Data importing")
+    uploaded_files = st.file_uploader(
+        "Select Morphologika files", type="txt", accept_multiple_files=True
+    )
+
+    # --- Classify button ---
+    classify = st.button("Classify Morphologika files")
+
+    if classify:
+        if len(uploaded_files) == 0:
+            st.error("No files uploaded.")
+
+        else:
+            file_names, errors = [], []
+            for file in uploaded_files:
+                file_names.append(file.name)
+                try:
+                    content = file.read().decode("utf-8").splitlines()
+                    if not is_morphologika(content):
+                        errors.append(f"{file.name} is not a valid Morphologika file.")
+                except UnicodeDecodeError:
+                    errors.append(
+                        f"{file.name} could not be read. Please ensure it is UTF-8 encoded."
+                    )
+
+            duplicates = [name for name in file_names if file_names.count(name) > 1]
+            if duplicates:
                 errors.append(
-                    f"{file.name} could not be read. Please ensure it is UTF-8 encoded."
+                    f"Multiple files with the name ({', '.join(set(duplicates))}) detected. Please give them unique names before uploading."
                 )
 
-        # Check for duplicate file names
-        duplicates = [name for name in file_names if file_names.count(name) > 1]
-        if duplicates:
-            errors.append(
-                f"Multiple files with the name ({', '.join(set(duplicates))}) detected. Please give them unique names before uploading."
-            )
+            if errors:
+                for error in errors:
+                    st.error(error)
+                st.stop()
 
-        # If there were errors, display them and interrupt execution
-        if errors:
-            for error in errors:
-                st.error(error)
-
-            st.stop()
-
-        # If all files are valid, proceed to classification
-        else:
-            try:
+            else:
                 tmp_dir = tempfile.TemporaryDirectory()
                 tmp_path = Path(tmp_dir.name)
 
-                # save uploaded files to temp input dir
                 input_dir = tmp_path / "input"
                 input_dir.mkdir()
                 file_paths = []
                 for f in uploaded_files:
-                    f.seek(0)  # reset file pointer to beginning
+                    f.seek(0)
                     p = input_dir / f.name
                     p.write_bytes(f.read())
                     file_paths.append(str(p))
 
-                # create temp output dir
                 output_dir = tmp_path / "output"
                 output_dir.mkdir()
 
-                print(*file_paths)
-
-                # run script
-                result = subprocess.run(
+                process = subprocess.Popen(
                     [
                         "python",
                         "src/classification.py",
@@ -106,28 +140,14 @@ if classify:
                         "--seed",
                         str(seed),
                     ],
-                    # stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True,
                 )
 
-                if result.returncode != 0:
-                    st.error(result.stderr)
-                else:
-                    st.success("Done!")
-                    zip_buffer = io.BytesIO()
-                    with zipfile.ZipFile(zip_buffer, "w") as zf:
-                        for output_file in output_dir.iterdir():
-                            zf.write(output_file, output_file.name)
-
-                    st.download_button(
-                        label="Download results",
-                        data=zip_buffer.getvalue(),
-                        file_name="results.zip",
-                        mime="application/zip",
-                    )
-            finally:
-                if tmp_dir:
-                    tmp_dir.cleanup()
+                st.session_state["process"] = process
+                st.session_state["tmp_dir"] = tmp_dir
+                st.session_state["output_dir"] = output_dir
+                st.session_state["running"] = True
+                st.rerun()
 
 st.markdown("*Classification algorithm: Sara Behnamian. App: Oliver Todreas*")
