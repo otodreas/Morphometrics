@@ -23,12 +23,13 @@ def is_morphologika(file: list[str]) -> bool:
 
     # Loop through lines
     for line in file:
-        if line.strip() in required_headers.keys():
+        if line.strip().lower() in required_headers.keys():
             # Update dictionary value to True for the corresponding header
-            required_headers[line.strip()] = True
+            required_headers[line.strip().lower()] = True
             # Break if all required headers have been found
             if all(required_headers.values()):
                 return True
 
     # If not all required headers were found, return False
+    print(required_headers)
     return False

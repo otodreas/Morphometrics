@@ -1,0 +1,5 @@
+[LOG] Writing live log to: /Users/otodreas/Desktop/Lund_Master/Courses/BINP29/Morphometrics/classification_outputs/run.log.txt
+[OK] XGBoost available
+[OK] LightGBM available
+[OK] CatBoost available
+  Stopping...

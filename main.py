@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 import os
+import subprocess
+import tempfile
 from pathlib import Path
 
 import streamlit as st
-from sklearn.metrics import classification_report
 
 import src.classification as classification
 from src.validate import is_morphologika
@@ -15,14 +16,9 @@ def upload():
 
     # Settings buttons
     st.subheader("Model Parameters (leave as-is for defaults)")
-    set_random_state = st.checkbox("Set random seed", value=True)
-    if set_random_state:
-        st.session_state.random_state = st.number_input(
-            "Random seed", value=42, min_value=0
-        )
-    else:
-        st.session_state.random_state = None
-
+    st.session_state.random_state = st.number_input(
+        "Random seed", value=42, min_value=0
+    )
     st.session_state.test_size = st.slider(
         "Test Size", min_value=0.1, max_value=0.5, value=0.25, step=0.05
     )
@@ -36,6 +32,18 @@ def upload():
     uploaded_files = st.file_uploader(
         "Select Morphologika files", type="txt", accept_multiple_files=True
     )
+
+    # Output directory path
+    st.subheader("Output directory")
+    st.session_state.output_dir = st.text_input("Output directory path", value="")
+
+    # Create temporary directory and save uploaded files
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        uploaded_files_tmp_paths = []
+        for f in uploaded_files:
+            tmp_path = Path(tmp_dir) / f.name
+            tmp_path.write_bytes(f.read())
+            uploaded_files_tmp_paths.append(str(tmp_path))
 
     # Classify button
     classify = st.button("Classify Morphologika files")
@@ -81,7 +89,8 @@ def upload():
 
             # If all files are valid, proceed to classification
             else:
-                st.session_state.files = uploaded_files
+                st.session_state.files = uploaded_files_tmp_paths
+                print(st.session_state.files)
                 st.session_state.screen = "running"
                 st.rerun()
 
@@ -91,19 +100,23 @@ def upload():
 def running():
     st.title("Classifying morphologika data...")
 
-    classification.main(
-        st.session_state.files,
-        st.session_state.test_size,
-        st.session_state.min_samples,
-        st.session_state.n_splits,
-        st.session_state.random_state,
-    )
-
-    st.download_button(
-        label="Download results",
-        data=zip_buff.getvalue(),
-        file_name="morphometrics_results.zip",
-        mime="application/zip",
+    subprocess.run(
+        [
+            "python",
+            "src/classification.py",
+            "--output_dir",
+            st.session_state.output_dir,
+            "--files",
+            st.session_state.files,
+            "--test_size",
+            st.session_state.test_size,
+            "--min_samples",
+            st.session_state.min_samples,
+            "--n_splits",
+            st.session_state.n_splits,
+            "--random_state",
+            st.session_state.random_state,
+        ]
     )
 
     # # Initialize cancel flag if not already set

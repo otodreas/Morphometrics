@@ -29,11 +29,16 @@ ADVANCED FEATURE ENGINEERING (NO PCA!):
 FILTERS OUT RARE SPECIES (< 3 samples) including "Unknown"
 
 Author: Sara
-Modified for web app by: Oliver Todreas
-Date: 2026
+Date: 2025
 =============================================================================
+MODIFICATIONS FOR STREAMLIT APP COMPATABILITY
+=============================================================================
+
+parse arguments
+
 """
 
+import argparse
 import json
 import os
 import sys
@@ -90,6 +95,22 @@ from sklearn.svm import SVC
 matplotlib.use("Agg")  # Non-interactive backend
 
 warnings.filterwarnings("ignore")
+
+
+# =============================================================================
+# PARSE ARGUMENTS FROM STREAMLIT
+# =============================================================================
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("--output_dir", type=str)
+parser.add_argument("--files", type=list)
+parser.add_argument("--test_size", type=float)
+parser.add_argument("--min_samples", type=int)
+parser.add_argument("--n_splits", type=int)
+parser.add_argument("--seed", type=int, default=None)
+
+args = parser.parse_args()
 
 # Paths: resolve data relative to project root (parent of scripts/)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -171,10 +192,10 @@ except ImportError:
 # =============================================================================
 # SETTINGS
 # =============================================================================
-RANDOM_STATE = 42
-TEST_SIZE = 0.25  # TODO: check if this even gets used anywhere
-MIN_SAMPLES = 3  # Minimum total samples per class
-N_SPLITS = 5  # CV folds (was 10)
+RANDOM_STATE = args.seed
+TEST_SIZE = args.test_size
+MIN_SAMPLES = args.min_samples  # Minimum total samples per class
+N_SPLITS = args.n_splits  # CV folds (was 10)
 TUNE_WEIGHTED_VOTING = True
 VOTING_TOP_K_GRID = [3, 4, 5, 6]
 VOTING_WEIGHT_POWER_GRID = [0.5, 1.0, 2.0]
@@ -183,7 +204,7 @@ CV_FOLDS_GRID = [5, 7, 10]
 BLEND_HOLDOUT_GRID = [0.2, 0.3, 0.4]
 BLEND_META_C_GRID = [0.1, 1.0, 10.0]
 
-# np.random.seed(RANDOM_STATE)
+np.random.seed(RANDOM_STATE)
 
 # =============================================================================
 # DATA LOADING
@@ -300,10 +321,10 @@ def get_species(names, dataset_type):
     return np.array(species)
 
 
-def filter_rare(labels, landmarks, min_samples: int):
-    """Remove classes with fewer than the minimum number of samples."""
+def filter_rare(labels, landmarks):
+    """Remove classes with fewer than MIN_SAMPLES samples."""
     counts = Counter(labels)
-    rare = [lab for lab, c in counts.items() if c < min_samples]
+    rare = [lab for lab, c in counts.items() if c < MIN_SAMPLES]
     if not rare:
         return labels, landmarks, []
     mask = ~np.isin(labels, rare)
@@ -891,7 +912,7 @@ def tune_weighted_voting_params(X, y, n_classes):
     return best
 
 
-def tune_global_weighted_voting(datasets, min_samples: int):
+def tune_global_weighted_voting(datasets):
     """Tune one global weighted voting config across all datasets."""
     dataset_cache = []
     for name, path, dtype in datasets:
@@ -901,7 +922,7 @@ def tune_global_weighted_voting(datasets, min_samples: int):
         labels = get_species(specimen_names, dtype)
         if dtype == "canids":
             labels = classify_canids_by_type(landmarks, specimen_names)
-        labels, landmarks, _ = filter_rare(labels, landmarks, min_samples)
+        labels, landmarks, _ = filter_rare(labels, landmarks)
         if len(np.unique(labels)) < 2:
             continue
         X = engineer_all_features(landmarks)
@@ -973,7 +994,7 @@ def tune_global_weighted_voting(datasets, min_samples: int):
     return best
 
 
-def tune_global_blending(datasets, min_samples: int):
+def tune_global_blending(datasets):
     """Tune blending params across all datasets."""
     dataset_cache = []
     for name, path, dtype in datasets:
@@ -983,7 +1004,7 @@ def tune_global_blending(datasets, min_samples: int):
         labels = get_species(specimen_names, dtype)
         if dtype == "canids":
             labels = classify_canids_by_type(landmarks, specimen_names)
-        labels, landmarks, _ = filter_rare(labels, landmarks, min_samples)
+        labels, landmarks, _ = filter_rare(labels, landmarks)
         if len(np.unique(labels)) < 2:
             continue
         X = engineer_all_features(landmarks)
@@ -1046,13 +1067,7 @@ def tune_global_blending(datasets, min_samples: int):
 
 
 def build_confusion_matrix_for_model(
-    dataset_name,
-    filepath,
-    dataset_type,
-    model_name,
-    output_dir,
-    min_samples: int,
-    best_model_params=None,
+    dataset_name, filepath, dataset_type, model_name, output_dir, best_model_params=None
 ):
     """Build confusion matrix using stratified K-fold CV on full dataset.
     Every specimen gets predicted exactly once (like Mohseni et al. Table 1)."""
@@ -1064,7 +1079,7 @@ def build_confusion_matrix_for_model(
     labels = get_species(specimen_names, dataset_type)
     if dataset_type == "canids":
         labels = classify_canids_by_type(landmarks, specimen_names)
-    labels, landmarks, _ = filter_rare(labels, landmarks, min_samples)
+    labels, landmarks, _ = filter_rare(labels, landmarks)
     if len(np.unique(labels)) < 2:
         print(f"  [SKIP] {dataset_name}: <2 classes after filtering")
         return None
@@ -1392,7 +1407,7 @@ def classify_canids_by_type(landmarks, specimen_names):
     return np.array(classifications)
 
 
-def analyze_dataset(name, filepath, dataset_type, min_samples: int, output_dir):
+def analyze_dataset(name, filepath, dataset_type, output_dir):
     """Full advanced analysis of one dataset"""
     print(f"\n{'=' * 70}")
     print(f"  {name.upper()} - ADVANCED ANALYSIS")
@@ -1423,10 +1438,10 @@ def analyze_dataset(name, filepath, dataset_type, min_samples: int, output_dir):
 
     # Filter rare species (including "Unknown" and others with < 3 samples)
     counts = Counter(species)
-    rare = [sp for sp, c in counts.items() if c < min_samples]
+    rare = [sp for sp, c in counts.items() if c < MIN_SAMPLES]
     if rare:
         print(
-            f"\n  [FILTERING] Removing {len(rare)} rare species (< {min_samples} samples):"
+            f"\n  [FILTERING] Removing {len(rare)} rare species (< {MIN_SAMPLES} samples):"
         )
         for sp in rare:
             print(f"    - {sp}: {counts[sp]} samples (OUTLIER - will be excluded)")
@@ -1595,13 +1610,7 @@ def analyze_dataset(name, filepath, dataset_type, min_samples: int, output_dir):
 # =============================================================================
 
 
-def main(
-    files: list, test_size: float, min_samples: int, n_splits: int, seed: int
-) -> list:
-    # Set seed
-    if seed:
-        np.random.seed(seed)
-
+def main():
     print("=" * 70)
     print("  02_ADVANCED MORPHOMETRIC CLASSIFICATION")
     print("  State-of-the-Art Ensemble Methods")
@@ -1689,9 +1698,7 @@ def main(
         print(f"{'=' * 70}")
 
         # Process this dataset
-        result = analyze_dataset(
-            name, path, dtype, min_samples=min_samples, output_dir=OUTPUT_DIR
-        )
+        result = analyze_dataset(name, path, dtype, OUTPUT_DIR)
 
         if result:
             # Store minimal summary info
@@ -1847,9 +1854,7 @@ def main(
         print(f"  GLOBAL TUNING - BEST OVERALL MODEL ({best_overall_model})")
         print("=" * 70)
         if best_overall_model == "Weighted Voting":
-            best_overall_params = tune_global_weighted_voting(
-                datasets, min_samples=min_samples
-            )
+            best_overall_params = tune_global_weighted_voting(datasets)
             if best_overall_params:
                 print(
                     f"    Params: top_k={best_overall_params['top_k']}, "
@@ -1858,9 +1863,7 @@ def main(
                     f"cv_accuracy={best_overall_params['cv_accuracy']:.4f}"
                 )
         elif best_overall_model == "Blending":
-            best_overall_params = tune_global_blending(
-                datasets, min_samples=min_samples
-            )
+            best_overall_params = tune_global_blending(datasets)
             if best_overall_params:
                 print(
                     f"    Params: blend_holdout={best_overall_params['blend_holdout']}, "
@@ -1883,7 +1886,6 @@ def main(
                 dtype,
                 best_overall_model,
                 OUTPUT_DIR,
-                min_samples=min_samples,
                 best_model_params=best_overall_params,
             )
             if cm_data:
@@ -1984,8 +1986,6 @@ def main(
     print(f"\n  All outputs saved to: {OUTPUT_DIR}/")
     print(f"    - Excel file: Advanced_Classification_Results.xlsx")
     print(f"    - Confusion matrices: *_Confusion_Matrix.png")
-
-    return []  # TODO: fix placeholder return
 
 
 if __name__ == "__main__":
