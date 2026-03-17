@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 
-import io
-import subprocess
 import tempfile
 import time
-import zipfile
 from pathlib import Path
 
 import streamlit as st
 
-from src.validate import is_morphologika
+from src.utils import create_zip_buffer, start_classification, validate_uploaded_files
 
 st.title("Advanced Morphometric Classification")
 
@@ -23,7 +20,7 @@ if st.session_state.get("running"):
         process.terminate()
         try:
             process.wait(timeout=5)
-        except subprocess.TimeoutExpired:
+        except Exception:
             process.kill()
         st.session_state["running"] = False
         st.session_state["tmp_dir"].cleanup()
@@ -31,11 +28,10 @@ if st.session_state.get("running"):
         st.stop()
 
     if process.poll() is None:  # still running
-        status.info("⏳ Classification running...")
+        status.info("Classification running...")
         time.sleep(0.5)
         st.rerun()
     else:
-        # Process finished
         st.session_state["running"] = False
         _, stderr = process.communicate()
         tmp_dir = st.session_state["tmp_dir"]
@@ -45,13 +41,9 @@ if st.session_state.get("running"):
                 st.error(stderr)
             else:
                 status.success("Done!")
-                zip_buffer = io.BytesIO()
-                with zipfile.ZipFile(zip_buffer, "w") as zf:
-                    for output_file in output_dir.iterdir():
-                        zf.write(output_file, output_file.name)
                 st.download_button(
                     label="Download results",
-                    data=zip_buffer.getvalue(),
+                    data=create_zip_buffer(output_dir),
                     file_name="results.zip",
                     mime="application/zip",
                 )
@@ -77,36 +69,16 @@ else:
     )
 
     # --- Classify button ---
-    classify = st.button("Classify Morphologika files")
-
-    if classify:
-        if len(uploaded_files) == 0:
+    if st.button("Classify Morphologika files"):
+        if not uploaded_files:
             st.error("No files uploaded.")
-
         else:
-            file_names, errors = [], []
-            for file in uploaded_files:
-                file_names.append(file.name)
-                try:
-                    content = file.read().decode("utf-8").splitlines()
-                    if not is_morphologika(content):
-                        errors.append(f"{file.name} is not a valid Morphologika file.")
-                except UnicodeDecodeError:
-                    errors.append(
-                        f"{file.name} could not be read. Please ensure it is UTF-8 encoded."
-                    )
-
-            duplicates = [name for name in file_names if file_names.count(name) > 1]
-            if duplicates:
-                errors.append(
-                    f"Multiple files with the name ({', '.join(set(duplicates))}) detected. Please give them unique names before uploading."
-                )
+            errors = validate_uploaded_files(uploaded_files)
 
             if errors:
                 for error in errors:
                     st.error(error)
                 st.stop()
-
             else:
                 tmp_dir = tempfile.TemporaryDirectory()
                 tmp_path = Path(tmp_dir.name)
@@ -123,25 +95,13 @@ else:
                 output_dir = tmp_path / "output"
                 output_dir.mkdir()
 
-                process = subprocess.Popen(
-                    [
-                        "python",
-                        "src/classification.py",
-                        "--output_dir",
-                        str(output_dir),
-                        "--files",
-                        *file_paths,
-                        "--test_size",
-                        str(test_size),
-                        "--min_samples",
-                        str(min_samples),
-                        "--n_splits",
-                        str(n_splits),
-                        "--seed",
-                        str(seed),
-                    ],
-                    stderr=subprocess.PIPE,
-                    text=True,
+                process = start_classification(
+                    output_dir=output_dir,
+                    file_paths=file_paths,
+                    test_size=test_size,
+                    min_samples=min_samples,
+                    n_splits=n_splits,
+                    seed=seed,
                 )
 
                 st.session_state["process"] = process
