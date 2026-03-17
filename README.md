@@ -1,5 +1,5 @@
 # Advanced Morphometric Classification
-Interactive morphometrics interface
+Interactive morphometrics interface for Linux and Mac
 
 ## Requirements
 - Python>=3.14.2 TODO: ask Sara what python version she used
