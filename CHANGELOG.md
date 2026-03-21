@@ -24,3 +24,7 @@ TODO:
 - `amc.py`: Crash message reflects the time after which `src/classification.py` crashed.
 - `src/classification.py`: Arranged labels in alphabetical order in `get_species()` to ensure XGBoost and MLP produce identical results when the script is run standalone and with Streamlit
 - `src/utils.py`: Merged stderr into stdout in `start_classification()` (`stderr=subprocess.PIPE` -> `stdout=subprocess.PIPE, stderr=subprocess.STDOUT`) so all subprocess output flows through a single pipe and is captured in `run.log.txt`
+
+### Removed
+
+- `amc.py`, `src/utils.py`, `src/classification.py`: Removed test size slider since the variable `TEST_SIZE` was not used anywhere in the classification script

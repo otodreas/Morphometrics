@@ -91,7 +91,6 @@ def create_zip_buffer(output_dir: Path) -> bytes:
 def start_classification(
     output_dir: Path,
     file_paths: list[str],
-    test_size: float,
     min_samples: int,
     n_splits: int,
     seed: int,
@@ -108,8 +107,6 @@ def start_classification(
             str(output_dir),
             "--files",
             *file_paths,
-            "--test_size",
-            str(test_size),
             "--min_samples",
             str(min_samples),
             "--n_splits",

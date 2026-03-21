@@ -108,7 +108,6 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("--output_dir", type=str)
 parser.add_argument("--files", nargs="+", type=str)  # list of Path objects
-parser.add_argument("--test_size", type=float)
 parser.add_argument("--min_samples", type=int)
 parser.add_argument("--n_splits", type=int)
 parser.add_argument("--seed", type=int, default=None)
@@ -208,7 +207,9 @@ except ImportError:
 # SETTINGS
 # =============================================================================
 RANDOM_STATE = args.seed
-TEST_SIZE = args.test_size
+TEST_SIZE = (
+    0.25  # This is not used anywhere. I left it as is so Sara can find it for later use
+)
 MIN_SAMPLES = args.min_samples  # Minimum total samples per class
 N_SPLITS = args.n_splits  # CV folds (was 10)
 TUNE_WEIGHTED_VOTING = True

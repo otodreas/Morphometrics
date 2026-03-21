@@ -102,9 +102,6 @@ else:
     # Create settings buttons
     st.subheader("Model Parameters (leave as-is for defaults)")
     seed = st.number_input("Random seed", value=42, min_value=0)
-    test_size = st.slider(
-        "Test Size", min_value=0.1, max_value=0.5, value=0.25, step=0.05
-    )
     min_samples = st.number_input(
         "Minimum total samples per class", value=3, min_value=1
     )
@@ -162,7 +159,6 @@ else:
                 process = start_classification(
                     output_dir=output_dir,
                     file_paths=file_paths,
-                    test_size=test_size,
                     min_samples=min_samples,
                     n_splits=n_splits,
                     seed=seed,
