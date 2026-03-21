@@ -1,82 +1,145 @@
-# Advanced Morphometric Classification
-Interactive morphometrics interface for Linux and Mac
+# 🏴‍☠️ CLASSIKA
+Interactive morphometrics classification interface for Linux and Mac
 
 ## Requirements
 - Python>=3.11
-- `requirements.txt`
-  - ```pip install -r requirements_linux.txt``` OR ```pip install -r requirements_mac.txt```
+- Required packages (see **Download and run** section)
 - MacOS:
-  - OpenMP
-    - ```brew install libomp```
+  - OpenMP needs to be installed via the terminal. To install it, open your terminal app and run
+```sh
+brew install libomp
+```
 
 ## Summary
-Advanced Morphometric Classification (AMC) is a Streamlit-based local host app built around Sara Behnamian's ML framework for species classification from Morphologika data.
+Classika (*morphometric **classi**fication program for Morphologi**ka** files*) is a Streamlit-based local host app built around Sara Behnamian's ML framework for species classification from Morphologika data.
 
 ## Download and run
 1. Ensure Python is installed on the system
-2. Install the latest release from GitHub
-3. Create and activate viritual environment (recommended)
+2. Install the latest Classika release from GitHub
+3. Unzip the install and open a terminal inside the folder
+4. Create and activate viritual environment (recommended). The commands below should be run from the terminal, from the folder where 
 ```sh
 python -m venv .venv
 source .venv/bin/activate
 ```
-4. Install requirements
+5. Install requirements
 ```sh
 pip install -r requirements_linux.txt
 # OR
 pip install -r requirements_mac.txt
 ```
-5. Launch the app
+6. Launch the app
 ```sh
-streamlit run amc.py
+streamlit run classika.py
 ```
 
 ## Usage
-AMC makes some assumptions about your data
-1. It is a Morphologika file or multiple Morphologika files with consistent Morphologika headers
-2. Species names are defined with binomial nomenclature split by space or underscore in the `[names]` section of the Morphologika file (i.e. `Homo Sapiens`, `homo_sapiens`, `H. Sapiens`, etc.)
 
-It can also run for a long time and be demanding on the system. The progress can be tracked in the terminal from which the app was launched.
+### Import data and set parameters
 
-## Current features
-AMC contains many useful features
+You are greeted by the data upload page when you launch Classika
 
-### Parameter selection
-The user may select values for parameters
-- **random seed**
-- **test size**: size of the test set relative to the size of the whole dataset
-- **minimum number of samples**: minimum number of rows in the `[names]` section for a species
-- **n_splits**: number of CV folds used
+<img src="docs/images/upload_screen.png" width="400">
+    
+Here, you can upload multiple Morphologika files and set some basic settings. Note that the "Number of data splits" option has a sizable impact on processing speed. Higher values will significantly slow down analysis.
 
-### Robust cancel button
-Since the process can be slow and resource intensive, it is important to be able to cancel the runs from the app UI if the user realizes that they have passed too many Morphologika files to the program, for instance.
+The advanced settings dropdown exposes the parameters used by the model voting. These settings are best used by experienced users, but more novice users are presented with a button to completely disable the model voting.
 
-The classification script `src/classification.py` is identical to the original program wherever possible for consistency. To accomplish this, the classification is called as a script rather than a set of imported functions. Because it is called with `subprocess.Popen`, it can be terminated with the cancel button.
+<img src="docs/images/tune_voting.png" width="400">
+    
+Below the advanced settings, the user is presented by dropdown menus for each specific model. These may be left as they are if the user is less experienced in ML methods. All model-specific parameters are saved in the output for reproducibility.
 
-## Planned features
+When you are satisfied with the settings, click the "Classify" button at the bottom of the screen.
 
-### Improve installation experience
-Write a shell script that is installed straight from the most recent release that builds and activates an environment, installs dependencies, and runs the app right away. With more time, accommodate Docker build.
+### Classification runs
 
-### "Intelligent" species selection
-Rather than defining species as the first two words in the `[names]` section, a goal is to create logical partitions of the entries in `[names]` based on its contents. If not, accomodating user input for custom species partitioning is an alternative.
+After clicking "Classify," the app will show the elapsed time and the bottom 10 lines of the logging file.
 
-### Loading screen
-A separate loading screen with a progress bar will visually highlight that a process is running.
+<img src="docs/images/classification_screen.png" width="400">
+    
+Note that classification can take a long time. If the log under "Process status..." does not change, it does not necessarily mean that the process is stuck.
 
-### More parameter choices
-Accommodation for more parameters to be chosen by the user can improve flexibility of AMC for differing research aims.
+To get a general sense of how far along the analysis is, compare the current process status to the steps of the analysis. You can expect to see these headers appear in the process status viewer, in order
 
-### Upload external configuration files
-In the original script, the author used an external CSV file to aid in classification for certain Morphologika files. Accommodating this in AMC would allow for a wider range of analyses.
+```
+[FILTERING]
+[TUNING]
+[1] INDIVIDUAL MODELS
+[2] STACKING ENSEMBLE
+[3] WEIGHTED VOTING ENSEMBLE
+[4] BLENDING ENSEMBLE
+```
+
+### Downloading results
+
+When the analysis finishes, you will see the download screen
+
+<img src="docs/images/download_screen.png" width="400">
+    
+Click "Download results" to download a zip folder containing the outputs. When you unzip the file you downloaded, you will find the following files
+```
+results/
+├── Advanced_Classification_Results.xlsx
+├── input_filename_Confusion_Matrix_Best_Overall.png
+├── misc/
+└── run.log.txt
+```
+
+`run.log.txt` is identical to all the text that was streamed to the "Process status..." section. Here, you can find information about the rest of the files. In summary:
+- `Advanced_Classification_Results.xlsx` contains the bulk of the results in multiple sheets
+  - Sheet 1: Run_Parameters (all settings used for the run)
+  - Sheet 2: All_Results (all models for all datasets)
+  - Sheet 3: Summary (dataset overview)
+  - Sheet 4: Best_Models (best model per dataset)
+  - Sheet 5: Best_Overall_Model (best model across all datasets)
+- `input_filename_Confusion_Matrix_Best_Overall.png` is a confusion matrix that shows the performance of the best model. You will see one confusion matrix per Morphologika file uploaded
+- `misc/` is a folder that contains some advanced information, such as the weighted voting summary in `json` format and some automatically generated summary files that pertain to the catboost model
+
+## Troubleshooting
+
+### Data import fails
+
+Classika requires plain text files in Morphologika format. If your input file does not contain the headers
+
+```
+[individuals]
+[landmarks]
+[dimensions]
+[names]
+[rawpoints]
+```
+
+Classika will not recognize the file as a Morphologika file
+
+### Slow runs
+
+Classification runs can take anywhere from under a minute to multiple hours or days. If analysis is running slow and you suspect the program is stuck, you can
+- Click "Cancel"
+- Under "General settings", set "Number of data splits" to 2. This is the lightest data partitioning setting and should allow for relatively quick runs (order of minutes) on single Morphologika files.
+
+### Unexpected results
+
+You might find you get unexpected results after a run. A potential culprit is incorrect partitioning of true classes in the data. A typical Morphologika file has a `[names]` section, where the classes in the data are laid out. It might look like
+
+```
+[names]
+papio cynocephalus  66.491
+...
+papio cynocephalus  61.742
+mandrillus leucophaeus 1959.1.2.6
+...
+mandrillus leucophaeus 48.444
+Macaca mulatta f80.246
+...
+Macaca mulatta m10.10.19.5
+```
+
+Classika assumes that the groups are defined with binomial nomenclature, split by a space or an underscore (i.e. `Homo Sapiens`, `homo_sapiens`, `H. Sapiens`, etc.). If this is not the case, your data will not be grouped properly.
 
 ## Development notes
 
 ### Implementation of original script
-We elected to call a modified version of Sara Behnamian's original script with `subprocess.Popen()` so that the program could be run similarly to how it was run by the author with minimal changes. Hardcoded variables were changed to commandline arguments. Lines that were removed from the original script are commented out in `src/classification.py` rather than deleted for clarity. A goal for the future is to clean up `src/classification.py` and provide a diff file to highlight the differences between the original classification script and the AMC-adapted script.
+We elected to call a modified version of Sara Behnamian's original script with `subprocess.Popen()` so that the program could be run similarly to how it was run by the author with minimal changes. Hardcoded variables were changed to commandline arguments. Lines that were removed from the original script are commented out in `src/classification.py` rather than deleted for clarity. A goal for the future is to clean up `src/classification.py` and provide a diff file to highlight the differences between the original classification script and the Classika-adapted script.
 
 ### Temporary directories
 Files are copied over to a temporary directory and read from there since Streamlit cannot read files directly from the user's disk. The output files are also written to the same temporary directory, and the files are subsequently written to a zip archive to accommodate easy downloading. The temporary directory is always deleted.
-
-### Reproducibility
-Everything is reproducible thanks to the seeding, `XGBoost` and `MLP` currently run slightly differently in the app than with the standalone script. It is likely a seeding issue, since it's consistent across app runs and standalone script runs.

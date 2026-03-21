@@ -195,7 +195,7 @@ def setup_logging():
     log_file = open(log_path, "w", encoding="utf-8")
     sys.stdout = Tee(sys.__stdout__, log_file)
     sys.stderr = Tee(sys.__stderr__, log_file)
-    print(f"[LOG] Writing live log to: {log_path}")
+    print(f"[LOG] Writing live log to: {os.path.basename(log_path)}")
 
 
 setup_logging()
@@ -1697,7 +1697,7 @@ def main():
 
     # Create output directory
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    print(f"\n  Output directory: {OUTPUT_DIR}")
+    # print(f"\n  Output directory: {OUTPUT_DIR}")
 
     # datasets = [
     #     ("Canids", "Canids/raw_data/canids_morphologika.txt", "canids"),

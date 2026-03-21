@@ -8,9 +8,10 @@ import streamlit as st
 
 from src.utils import create_zip_buffer, start_classification, validate_uploaded_files
 
-st.title("AMC")
-st.header("Advanced Morphometric Classification")
-st.subheader("Classify Morphologika files using machine learning")
+st.title("🏴‍☠️ CLASSIKA")
+st.header(
+    "Advanced morphometric classification from Morphologika files using machine learning"
+)
 
 # If a classification process was started in a previous rerun, resume it
 if st.session_state.get("running"):
@@ -142,6 +143,8 @@ else:
         )
 
     # Model-specific settings
+    st.subheader("Model-specific settings")
+
     with st.expander("XGBoost / LightGBM / CatBoost"):
         boost_n_estimators = st.number_input(
             "Number of estimators",
@@ -258,7 +261,7 @@ else:
         )
 
     # Classify button
-    if st.button("Classify Morphologika files"):
+    if st.button("Classify"):
         if not uploaded_files:
             st.error("No files uploaded.")
         else:
