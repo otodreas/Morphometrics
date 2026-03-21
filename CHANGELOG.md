@@ -4,13 +4,7 @@ All notable changes to this project following v1.0.6 will be documented in this 
 
 ## [v1.1.0] - 2026-03-23
 
-TODO:
-- Reproducibility fix: DONE
-- Parameter logging to output: DONE
-- README rewrite
-- Progress streaming to UI: DONE
-- Advanced config panel: DONE
-- Screenshots for README
+AMC is now **Classika**
 
 ### Added
 
@@ -23,6 +17,7 @@ TODO:
 7. `src/classification.py`: Added parsed arguments for all advanced settings
 8. `src/utils.py`: Added arguments to `start_classification()` to account for advanced settings
 9. `src/classification.py`: Write all advanced model parameters to the outputted Excel spreadsheet
+10. `README.md`: Wrote **Troubleshooting** section to address data import failures, slow runs, and unexpected results
 
 ### Changed
 
@@ -33,6 +28,7 @@ TODO:
 5. `classika.py`: Moved importer to the top of the UI and placed file importer and general settings in pre-expanded dropdowns to clean UI when classification is running
 6. `README.md`: Updated minimum Python version and confirmed that it works locally
 7. `src/classification.py`: Output catboost info and weighted voting parameter json file to `misc/` folder in output to reduce clutter
+8. `README.md`: Rewrote **Usage** section to include screenshots
 
 
 ### Removed
