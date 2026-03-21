@@ -2,7 +2,7 @@ original_materials/
 data/
 test/
 
-.venv/
+.venv*/
 
 **nohup.out
 
