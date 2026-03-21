@@ -53,9 +53,14 @@ if st.session_state.get("running"):
         st.session_state["tmp_dir"].cleanup()
         st.rerun()
 
+    # Compute elapsed time from session state
+    elapsed = int(time.time() - st.session_state.get("start_time", time.time()))
+    mins, secs = divmod(elapsed, 60)
+    elapsed_str = f"{mins}m {secs:02d}s" if mins else f"{secs}s"
+
     # If the process is still running (there is no exit code), show the log tail and rerun to poll again
     if process.poll() is None:
-        status.info("Classification running...")
+        status.info(f"Classification running... {elapsed_str}")
         log_container.code(read_log_tail(), language=None)
         time.sleep(1)
         st.rerun()
@@ -75,11 +80,13 @@ if st.session_state.get("running"):
             # If the exit code is non-zero, report the error
             if process.returncode != 0:
                 remaining = process.stdout.read() if process.stdout else ""
-                status.error("Classification failed. See output above for details.")
+                status.error(
+                    f"Classification failed after {elapsed_str}. See output above for details."
+                )
                 if remaining:
                     st.code(remaining, language=None)
             else:
-                status.success("Classification complete")
+                status.success(f"Classification complete in {elapsed_str}")
                 st.download_button(
                     label="Download results",
                     data=create_zip_buffer(output_dir),
@@ -166,6 +173,7 @@ else:
                 st.session_state["tmp_dir"] = tmp_dir
                 st.session_state["output_dir"] = output_dir
                 st.session_state["running"] = True
+                st.session_state["start_time"] = time.time()
 
                 # Rerun the script to trigger the UI update with the running state
                 st.rerun()
