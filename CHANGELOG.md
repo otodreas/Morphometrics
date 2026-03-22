@@ -2,6 +2,14 @@
 
 All notable changes to this project following v1.0.6 will be documented in this file
 
+## [v1.1.2] - 2026-03-22
+
+### Added
+1. `README.md`: description of AI methods, style changes
+
+### Removed
+1. `README.md`, `classika.py`:  removed jolly roger mascot
+
 ## [v1.1.1] - 2026-03-22
 
 ### Added
