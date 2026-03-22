@@ -1,0 +1,30 @@
+{
+  "data": {
+    "top_k": 3,
+    "weight_power": 0.5,
+    "cv_accuracy": 0.967622571692877,
+    "model_scores": {
+      "XGBoost": 0.9137372802960222,
+      "LightGBM": 0.9352451433857539,
+      "CatBoost": 0.9352451433857539,
+      "RandomForest": 0.9352451433857539,
+      "ExtraTrees": 0.9458834412580943,
+      "GradientBoosting": 0.849444958371878,
+      "LogisticRegression": 0.9458834412580943,
+      "LDA": 0.9784921369102683,
+      "SVM_RBF": 0.9458834412580943,
+      "MLP": 0.8711840888066604,
+      "KNN": 0.9246068455134135
+    },
+    "top_models": [
+      "LDA",
+      "ExtraTrees",
+      "LogisticRegression"
+    ],
+    "weights": [
+      0.3371098430359539,
+      0.3314450784820231,
+      0.3314450784820231
+    ]
+  }
+}

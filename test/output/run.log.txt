@@ -1,0 +1,177 @@
+[LOG] Writing live log to: run.log.txt
+[OK] XGBoost available
+[OK] LightGBM available
+[OK] CatBoost available
+======================================================================
+  02_ADVANCED MORPHOMETRIC CLASSIFICATION
+  State-of-the-Art Ensemble Methods
+======================================================================
+
+  Processing 1 datasets one at a time...
+  Results will be saved incrementally to reduce memory usage.
+
+
+======================================================================
+  Processing dataset 1/1: data
+======================================================================
+
+======================================================================
+  DATA - ADVANCED ANALYSIS
+======================================================================
+
+  Loaded: 95 specimens, 31 landmarks
+
+  [FILTERING] Removing 1 rare species (< 3 samples):
+    - Lophocebus_aterrimus: 2 samples (OUTLIER - will be excluded)
+  After filtering: 93 specimens remaining
+
+  Species distribution (5 classes):
+    Lophocebus_albigena: 27
+    Macaca_mulatta: 22
+    Mandrillus_leucophaeus: 20
+    Cercocebus_torquatus: 15
+    Papio_cynocephalus: 9
+
+  Feature Engineering (NO PCA - comprehensive shape features only):
+  Computing features (NO PCA - comprehensive shape features only)...
+    Raw coordinates: 93
+    Pairwise distances: 465
+    Centroid features: 38
+    Angle features: 200
+    Shape descriptors: 21
+    Distance ratios: 20
+    TOTAL FEATURES: 837 (NO PCA - pure shape features)
+
+  [TUNING] Weighted Voting (CV on full dataset):
+    Best params: top_k=3, weight_power=0.5, cv_accuracy=0.9676
+
+  [1] INDIVIDUAL MODELS (2-fold stratified CV on full dataset):
+  --------------------------------------------------
+    XGBoost             : 0.9140 (0.2s)
+    LightGBM            : 0.9355 (1.0s)
+    CatBoost            : 0.9355 (3.4s)
+    RandomForest        : 0.9355 (0.2s)
+    ExtraTrees          : 0.9462 (0.1s)
+    GradientBoosting    : 0.8495 (2.3s)
+    LogisticRegression  : 0.9462 (0.0s)
+    LDA                 : 0.9785 (0.0s)
+    SVM_RBF             : 0.9462 (0.0s)
+    MLP                 : 0.8710 (0.1s)
+    KNN                 : 0.9247 (0.0s)
+
+  [2] STACKING ENSEMBLE (2-fold CV):
+  --------------------------------------------------
+    Stacking: 0.9355 (5.9s)
+
+  [3] WEIGHTED VOTING ENSEMBLE (2-fold CV):
+  --------------------------------------------------
+    Weighted Voting: 0.9677 (0.2s)
+    Model weights: {'LDA': np.float64(0.3371098430359539), 'ExtraTrees': np.float64(0.3314450784820231), 'LogisticRegression': np.float64(0.3314450784820231)}
+
+  [4] BLENDING ENSEMBLE (2-fold CV):
+  --------------------------------------------------
+    Blending: 0.9462 (6.4s)
+
+  Evaluation: 2-fold stratified CV on full dataset (all specimens)
+  (Like Mohseni et al. Table 1 - every specimen predicted exactly once)
+
+
+  ==================================================
+  RESULTS SUMMARY - data (2-fold CV)
+  ==================================================
+
+  Model                     Accuracy  
+  -----------------------------------
+  LDA                       0.9785
+  Weighted Voting           0.9677
+  ExtraTrees                0.9462
+  LogisticRegression        0.9462
+  SVM_RBF                   0.9462
+  Blending                  0.9462
+  LightGBM                  0.9355
+  CatBoost                  0.9355
+  RandomForest              0.9355
+  Stacking Ensemble         0.9355
+  KNN                       0.9247
+  XGBoost                   0.9140
+  MLP                       0.8710
+  GradientBoosting          0.8495
+
+  *** BEST: LDA = 0.9785 (97.85%) ***
+
+  [OK] Incremental save: Results for data saved to Excel
+  Memory cleared after processing data
+
+======================================================================
+  FINAL COMPARISON - ALL DATASETS
+======================================================================
+
+  Dataset      Spec   LM   Feat   Cls  Best Model             Accuracy   Accuracy %  
+  -------------------------------------------------------------------------------------
+  data         93     31   837    5    LDA                    0.9785      97.85%
+  -------------------------------------------------------------------------------------
+  AVERAGE                                                     0.9785      97.85%
+=====================================================================================
+
+======================================================================
+  BEST MODEL ACROSS ALL DATASETS
+======================================================================
+
+  Models tested on all 1 datasets:
+
+  Model                     Avg Accuracy    Accuracy %   Per-Dataset Scores
+  ----------------------------------------------------------------------------------------------------
+  LDA                       0.9785               97.85%    data: 0.978
+  Weighted Voting           0.9677               96.77%    data: 0.968
+  ExtraTrees                0.9462               94.62%    data: 0.946
+  LogisticRegression        0.9462               94.62%    data: 0.946
+  SVM_RBF                   0.9462               94.62%    data: 0.946
+  Blending                  0.9462               94.62%    data: 0.946
+  LightGBM                  0.9355               93.55%    data: 0.935
+  CatBoost                  0.9355               93.55%    data: 0.935
+  RandomForest              0.9355               93.55%    data: 0.935
+  Stacking Ensemble         0.9355               93.55%    data: 0.935
+  KNN                       0.9247               92.47%    data: 0.925
+  XGBoost                   0.9140               91.40%    data: 0.914
+  MLP                       0.8710               87.10%    data: 0.871
+  GradientBoosting          0.8495               84.95%    data: 0.849
+
+  ======================================================================
+  *** BEST MODEL ACROSS ALL DATASETS: LDA ***
+  *** Average Accuracy: 0.9785 (97.85%) ***
+  ======================================================================
+
+  Per-Dataset Performance:
+    data: 0.9785 (97.85%)
+
+======================================================================
+  GLOBAL TUNING - BEST OVERALL MODEL (LDA)
+======================================================================
+    [INFO] No global tuning implemented for this model.
+
+======================================================================
+  CONFUSION MATRICES - BEST OVERALL MODEL (LDA)
+======================================================================
+  Computing features (NO PCA - comprehensive shape features only)...
+    Raw coordinates: 93
+    Pairwise distances: 465
+    Centroid features: 38
+    Angle features: 200
+    Shape descriptors: 21
+    Distance ratios: 20
+    TOTAL FEATURES: 837 (NO PCA - pure shape features)
+    [OK] Confusion matrix saved: data_Confusion_Matrix_Best_Overall.png
+    [OK] Overall Accuracy: 97.85% (2-fold CV, 93 specimens)
+
+  [OK] Tuned weighted voting params saved to: misc/weighted_voting_tuned_params.json
+
+  [OK] Results saved to: Advanced_Classification_Results.xlsx
+    - Sheet 1: Run_Parameters (all settings used for this run)
+    - Sheet 2: All_Results (all models for all datasets)
+    - Sheet 3: Summary (dataset overview)
+    - Sheet 4: Best_Models (best model per dataset)
+    - Sheet 5: Best_Overall_Model (best model across all datasets)
+
+  All outputs saved
+    - Excel file: Advanced_Classification_Results.xlsx
+    - Confusion matrices: *_Confusion_Matrix.png

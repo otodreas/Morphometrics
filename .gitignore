@@ -1,7 +1,7 @@
 original_materials/
-data/
-test/
+test_old/
 resources/
+
 
 .venv*/
 **nohup.out

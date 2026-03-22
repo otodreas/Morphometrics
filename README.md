@@ -1,5 +1,14 @@
 # 🏴‍☠️ CLASSIKA
+
+![Python](https://img.shields.io/badge/python-3.11-yellow)
+![License](https://img.shields.io/badge/license-MIT-red)
+![Platform](https://img.shields.io/badge/platform-streamlit-orange)
+![Version](https://img.shields.io/github/v/release/otodreas/Classika)
+![Last Commit](https://img.shields.io/github/last-commit/otodreas/Classika)
+
 Interactive morphometrics classification interface for Linux and Mac
+
+This file acts as a manual for Classika and is intended to be read top to bottom
 
 ## Requirements
 - Python>=3.11
@@ -12,6 +21,11 @@ brew install libomp
 
 ## Summary
 Classika (*morphometric **classi**fication program for Morphologi**ka** files*) is a Streamlit-based local host app built around Sara Behnamian's ML framework for species classification from Morphologika data.
+
+It takes labeled Morphologika data as input, classifies specimens based on advanced morphological parameters using multiple ML algorithms, and returns statistics on those algorithms. Classika may be used to
+- Validate labels (if Classika fails to label your data correctly, it could be a red flag)
+- Assess the quality of your dataset's raw-points coordinates
+- Explore machine learning algorithms that may be useful for you in the future
 
 ## Download and run
 1. Ensure Python is installed on the system
@@ -41,7 +55,7 @@ You are greeted by the data upload page when you launch Classika
 
 <img src="docs/images/upload_screen.png" width="400">
     
-Here, you can upload multiple Morphologika files and set some basic settings. Note that the "Number of data splits" option has a sizable impact on processing speed. Higher values will significantly slow down analysis.
+Here, you can upload multiple Morphologika files and set some basic settings. Note that the "Number of data splits" option has a sizable impact on processing speed. Higher values will significantly slow down analysis. If you are unfamiliar with k-fold cross-validation, it fills the same function as a traditional train/test split, but aims to control for the quality of a given split.
 
 The advanced settings dropdown exposes the parameters used by the model voting. These settings are best used by experienced users, but more novice users are presented with a button to completely disable the model voting.
 
@@ -63,10 +77,15 @@ To get a general sense of how far along the analysis is, compare the current pro
 
 ```
 [FILTERING]
+...
 [TUNING]
+...
 [1] INDIVIDUAL MODELS
+...
 [2] STACKING ENSEMBLE
+...
 [3] WEIGHTED VOTING ENSEMBLE
+...
 [4] BLENDING ENSEMBLE
 ```
 
@@ -116,6 +135,8 @@ Classika will not recognize the file as a Morphologika file
 Classification runs can take anywhere from under a minute to multiple hours or days. If analysis is running slow and you suspect the program is stuck, you can
 - Click "Cancel"
 - Under "General settings", set "Number of data splits" to 2. This is the lightest data partitioning setting and should allow for relatively quick runs (order of minutes) on single Morphologika files.
+
+You can also try running the test dataset. In your install of Classika, you installed a folder called `test/`. Inside it are instructions on how to run the test set as well as the output you should expect.
 
 ### Unexpected results
 
