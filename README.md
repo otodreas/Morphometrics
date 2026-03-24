@@ -25,7 +25,7 @@ This file acts as a manual for Classika and is intended to be read top to bottom
 ├── requirements_linux.txt
 ├── requirements_mac.txt
 ├── src/
-│   ├── __pycache__
+│   ├── __init__.py
 │   ├── classification.py
 │   └── utils.py
 └── test/
