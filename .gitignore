@@ -6,3 +6,4 @@ resources/
 .venv*/
 **nohup.out
 **__pycache__/
+AMC.pdf
